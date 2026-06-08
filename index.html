@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>夜城题库终端</title>
+    <link rel="stylesheet" href="./style.css?v=3" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="主导航">
+        <div class="brand">
+          <div class="brand-mark">QB</div>
+          <div>
+            <span class="eyebrow">NEON ARCHIVE</span>
+            <h1>夜城题库终端</h1>
+            <p id="questionCount">等待题库</p>
+          </div>
+        </div>
+
+        <section class="creed-panel" aria-label="学习箴言">
+          <span>修学箴言</span>
+          <p id="creedText">知识不是光，它只是让你看清黑暗的轮廓。</p>
+        </section>
+
+        <nav class="nav-tabs" aria-label="功能切换">
+          <button class="nav-tab is-active" data-view="browse" type="button">档案检索</button>
+          <button class="nav-tab" data-view="exam" type="button">压力测试</button>
+          <button class="nav-tab" data-view="wrong" type="button">创伤记录</button>
+        </nav>
+
+        <section class="import-panel" aria-label="导入题库">
+          <label class="file-button">
+            <input id="csvInput" type="file" accept=".csv,text/csv" />
+            接入 CSV
+          </label>
+          <button id="loadSampleBtn" class="secondary-button" type="button">加载示例</button>
+          <p class="hint">部署时把题库文件命名为 <strong>data.csv</strong> 并放在同一目录，终端会自动接入。</p>
+        </section>
+      </aside>
+
+      <main class="main">
+        <section class="status-strip" aria-label="终端状态">
+          <div>
+            <span>SYNC</span>
+            <strong>CSV ONLINE</strong>
+          </div>
+          <div>
+            <span>MODE</span>
+            <strong id="modeText">ARCHIVE</strong>
+          </div>
+          <div>
+            <span>WARNING</span>
+            <strong>ERRORS REMEMBER</strong>
+          </div>
+        </section>
+
+        <section class="toolbar" aria-label="筛选工具">
+          <div class="search-box">
+            <input id="searchInput" type="search" placeholder="检索题干、选项、解析" autocomplete="off" />
+          </div>
+          <select id="categoryFilter" aria-label="分类筛选">
+            <option value="">全部分类</option>
+          </select>
+          <select id="difficultyFilter" aria-label="难度筛选">
+            <option value="">全部难度</option>
+          </select>
+        </section>
+
+        <section id="browseView" class="view is-active" aria-label="题库列表">
+          <div id="questionList" class="question-list"></div>
+        </section>
+
+        <section id="examView" class="view" aria-label="模拟考试">
+          <div class="exam-setup" id="examSetup">
+            <div>
+              <h2>压力测试</h2>
+              <p>从当前筛选结果中随机抽题。答错的题会进入创伤记录，直到你重新审判它。</p>
+            </div>
+            <div class="exam-controls">
+              <label>
+                题量
+                <input id="examSize" type="number" min="1" value="10" />
+              </label>
+              <button id="startExamBtn" class="primary-button" type="button">启动</button>
+            </div>
+          </div>
+          <div id="examArea" class="exam-area"></div>
+        </section>
+
+        <section id="wrongView" class="view" aria-label="错题列表">
+          <div class="wrong-header">
+            <div>
+              <h2>创伤记录</h2>
+              <p id="wrongSummary">暂无错题记录</p>
+            </div>
+            <button id="clearWrongBtn" class="secondary-button danger" type="button">清除记录</button>
+          </div>
+          <div id="wrongList" class="question-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="questionTemplate">
+      <article class="question-card">
+        <div class="question-meta"></div>
+        <h3 class="question-title"></h3>
+        <div class="options"></div>
+        <details class="answer-block">
+          <summary>揭示答案与解析</summary>
+          <div class="answer-content"></div>
+        </details>
+      </article>
+    </template>
+
+    <script src="./script.js?v=3"></script>
+  </body>
+</html>

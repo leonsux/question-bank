@@ -1,0 +1,4 @@
+题目,A,B,C,D,答案,解析,分类,难度
+"HTML 中用于引入外部样式表的标签是？","script","link","style","meta","B","link 标签通过 rel=""stylesheet"" 引入 CSS 文件。","前端基础","简单"
+"以下哪些属于 JavaScript 的基本数据类型？","String","Number","Object","Boolean","A、B、D","Object 是引用类型，String、Number、Boolean 属于基本数据类型。","JavaScript","普通"
+"CSS Flex 布局中，控制主轴对齐方式的属性是？","align-items","justify-content","flex-wrap","gap","B","justify-content 控制主轴方向上的对齐方式。","CSS","简单"
