@@ -3,7 +3,9 @@
 
   const STORAGE_WRONG = "question-bank-wrong-v1";
   const STORAGE_DATA = "question-bank-data-v1";
+  const STORAGE_PAGE_SIZE = "question-bank-page-size-v1";
   const OPTION_KEYS = ["A", "B", "C", "D", "E", "F"];
+  const PAGE_SIZE_OPTIONS = [10, 20, 30, 50];
   const CREEDS = [
     "知识不是光，它只是让你看清黑暗的轮廓。",
     "每一道错题都是伤口，复盘是让它结痂的仪式。",
@@ -22,6 +24,11 @@
     filtered: [],
     view: "browse",
     wrongIds: new Set(JSON.parse(localStorage.getItem(STORAGE_WRONG) || "[]")),
+    pageSize: normalizePageSize(localStorage.getItem(STORAGE_PAGE_SIZE)),
+    pages: {
+      browse: 1,
+      wrong: 1
+    },
     exam: null
   };
 
@@ -33,7 +40,9 @@
     categoryFilter: document.getElementById("categoryFilter"),
     difficultyFilter: document.getElementById("difficultyFilter"),
     questionList: document.getElementById("questionList"),
+    browsePagination: document.getElementById("browsePagination"),
     wrongList: document.getElementById("wrongList"),
+    wrongPagination: document.getElementById("wrongPagination"),
     wrongSummary: document.getElementById("wrongSummary"),
     clearWrongBtn: document.getElementById("clearWrongBtn"),
     examSize: document.getElementById("examSize"),
@@ -269,6 +278,7 @@
         (!difficulty || question.difficulty === difficulty);
     });
 
+    state.pages.browse = 1;
     renderAll();
   }
 
@@ -282,17 +292,30 @@
   }
 
   function renderBrowse() {
-    renderQuestionList(els.questionList, state.filtered, "档案为空。请接入 CSV，或把 data.csv 放到本目录。");
+    renderQuestionList({
+      container: els.questionList,
+      pagination: els.browsePagination,
+      questions: state.filtered,
+      pageKey: "browse",
+      emptyText: "档案为空。请接入 CSV，或把 data.csv 放到本目录。"
+    });
   }
 
   function renderWrong() {
     const wrongQuestions = state.questions.filter((question) => state.wrongIds.has(question.id));
     els.wrongSummary.textContent = wrongQuestions.length ? wrongQuestions.length + " 道创伤记录" : "暂无创伤记录";
-    renderQuestionList(els.wrongList, wrongQuestions, "暂无创伤记录。压力测试中的错误会自动归档。");
+    renderQuestionList({
+      container: els.wrongList,
+      pagination: els.wrongPagination,
+      questions: wrongQuestions,
+      pageKey: "wrong",
+      emptyText: "暂无创伤记录。压力测试中的错误会自动归档。"
+    });
   }
 
-  function renderQuestionList(container, questions, emptyText) {
+  function renderQuestionList({ container, pagination, questions, pageKey, emptyText }) {
     container.innerHTML = "";
+    pagination.innerHTML = "";
     if (!questions.length) {
       const empty = document.createElement("div");
       empty.className = "empty";
@@ -301,11 +324,90 @@
       return;
     }
 
+    const totalPages = Math.max(1, Math.ceil(questions.length / state.pageSize));
+    const page = clamp(state.pages[pageKey] || 1, 1, totalPages);
+    const start = (page - 1) * state.pageSize;
+    const pageQuestions = questions.slice(start, start + state.pageSize);
+    state.pages[pageKey] = page;
+
     const fragment = document.createDocumentFragment();
-    questions.forEach((question, index) => {
-      fragment.append(renderQuestionCard(question, index));
+    pageQuestions.forEach((question, index) => {
+      fragment.append(renderQuestionCard(question, start + index));
     });
     container.append(fragment);
+    renderPagination(pagination, pageKey, page, totalPages, questions.length);
+  }
+
+  function renderPagination(container, pageKey, page, totalPages, totalItems) {
+    if (totalPages <= 1 && totalItems <= state.pageSize) return;
+
+    const summary = document.createElement("span");
+    summary.className = "pagination-summary";
+    summary.textContent = "第 " + page + " / " + totalPages + " 页 · 共 " + totalItems + " 题";
+
+    const pageSize = document.createElement("select");
+    pageSize.className = "page-size";
+    pageSize.setAttribute("aria-label", "每页数量");
+    PAGE_SIZE_OPTIONS.forEach((size) => {
+      pageSize.append(new Option("每页 " + size + " 题", String(size), false, size === state.pageSize));
+    });
+    pageSize.addEventListener("change", () => {
+      state.pageSize = Number(pageSize.value);
+      localStorage.setItem(STORAGE_PAGE_SIZE, String(state.pageSize));
+      state.pages.browse = 1;
+      state.pages.wrong = 1;
+      renderBrowse();
+      renderWrong();
+    });
+
+    const prev = paginationButton("上一页", page <= 1, () => changePage(pageKey, page - 1));
+    const next = paginationButton("下一页", page >= totalPages, () => changePage(pageKey, page + 1));
+
+    const jump = document.createElement("input");
+    jump.className = "page-jump";
+    jump.type = "number";
+    jump.min = "1";
+    jump.max = String(totalPages);
+    jump.value = String(page);
+    jump.setAttribute("aria-label", "跳转页码");
+    jump.addEventListener("change", () => changePage(pageKey, Number(jump.value) || 1));
+
+    container.append(summary, pageSize, prev, jump, next);
+  }
+
+  function paginationButton(text, disabled, onClick) {
+    const button = document.createElement("button");
+    button.className = "secondary-button pagination-button";
+    button.type = "button";
+    button.disabled = disabled;
+    button.textContent = text;
+    button.addEventListener("click", onClick);
+    return button;
+  }
+
+  function changePage(pageKey, page) {
+    state.pages[pageKey] = page;
+    if (pageKey === "browse") {
+      renderBrowse();
+    } else {
+      renderWrong();
+    }
+    scrollActiveViewToTop();
+  }
+
+  function scrollActiveViewToTop() {
+    const activeView = document.querySelector(".view.is-active");
+    if (!activeView) return;
+    activeView.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+  }
+
+  function normalizePageSize(value) {
+    const size = Number(value) || 20;
+    return PAGE_SIZE_OPTIONS.includes(size) ? size : 20;
   }
 
   function renderQuestionCard(question, index) {

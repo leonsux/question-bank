@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>夜城题库终端</title>
-    <link rel="stylesheet" href="./style.css?v=3" />
+    <link rel="stylesheet" href="./style.css?v=4" />
   </head>
   <body>
     <div class="app-shell">
@@ -69,6 +69,7 @@
 
         <section id="browseView" class="view is-active" aria-label="题库列表">
           <div id="questionList" class="question-list"></div>
+          <div id="browsePagination" class="pagination" aria-label="题库分页"></div>
         </section>
 
         <section id="examView" class="view" aria-label="模拟考试">
@@ -97,6 +98,7 @@
             <button id="clearWrongBtn" class="secondary-button danger" type="button">清除记录</button>
           </div>
           <div id="wrongList" class="question-list"></div>
+          <div id="wrongPagination" class="pagination" aria-label="错题分页"></div>
         </section>
       </main>
     </div>
@@ -113,6 +115,6 @@
       </article>
     </template>
 
-    <script src="./script.js?v=3"></script>
+    <script src="./script.js?v=4"></script>
   </body>
 </html>

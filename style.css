@@ -352,6 +352,58 @@ button {
   gap: 14px;
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid rgb(0 234 255 / 24%);
+  border-radius: 4px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.pagination:empty {
+  display: none;
+}
+
+.pagination-summary {
+  margin-right: auto;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pagination-button {
+  min-width: 82px;
+}
+
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+  box-shadow: none;
+}
+
+.page-size,
+.page-jump {
+  min-height: 42px;
+  border-radius: 4px;
+  background: rgb(6 9 16 / 86%);
+  color: var(--text);
+}
+
+.page-size {
+  width: 132px;
+  padding: 0 10px;
+}
+
+.page-jump {
+  width: 74px;
+  padding: 0 8px;
+  text-align: center;
+}
+
 .question-card,
 .exam-setup,
 .wrong-header,
@@ -625,6 +677,23 @@ button {
     position: static;
     grid-template-columns: 1fr;
     padding-bottom: 12px;
+  }
+
+  .pagination {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pagination-summary {
+    grid-column: 1 / -1;
+  }
+
+  .page-size {
+    width: 100%;
+  }
+
+  .page-jump {
+    width: 100%;
   }
 
   .exam-setup,
